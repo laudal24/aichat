@@ -16,8 +16,11 @@ import {
   ChevronRight,
   Sparkles,
   ShieldCheck,
+  LogOut,
 } from 'lucide-react'
 import { ThemeToggle } from './ThemeToggle'
+import { useAuth } from '@/contexts/AuthContext'
+import { logout } from '@/lib/auth/actions'
 
 const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -34,6 +37,19 @@ const navItems = [
 export default function Sidebar() {
   const pathname = usePathname()
   const [collapsed, setCollapsed] = useState(false)
+  const { user } = useAuth()
+
+  const displayName = user?.user_metadata?.full_name ?? user?.email?.split('@')[0] ?? 'User'
+  const initials = displayName.charAt(0).toUpperCase()
+  const plan = (user?.user_metadata?.plan as string | undefined) ?? 'Free Plan'
+
+  async function handleLogout() {
+    try {
+      await logout()
+    } catch {
+      // logout redirects on success; any caught error is a non-redirect failure
+    }
+  }
 
   return (
     <aside
@@ -78,17 +94,36 @@ export default function Sidebar() {
           <>
             <div className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-white/5 cursor-pointer">
               <div className="w-7 h-7 rounded-full bg-[#6366F1] flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
-                U
+                {initials}
               </div>
               <div className="min-w-0">
-                <p className="text-xs font-medium text-white truncate">User</p>
-                <p className="text-xs text-[#9CA3AF] truncate">Free Plan</p>
+                <p className="text-xs font-medium text-white truncate">{displayName}</p>
+                <p className="text-xs text-[#9CA3AF] truncate">{plan}</p>
               </div>
             </div>
             <ThemeToggle collapsed={false} />
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-2 px-3 py-2 text-xs text-[#9CA3AF] hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+              aria-label="Sign out"
+            >
+              <LogOut size={14} />
+              Sign out
+            </button>
           </>
         )}
-        {collapsed && <ThemeToggle collapsed />}
+        {collapsed && (
+          <>
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center justify-center py-2 text-[#9CA3AF] hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+              aria-label="Sign out"
+            >
+              <LogOut size={16} />
+            </button>
+            <ThemeToggle collapsed />
+          </>
+        )}
         <button
           onClick={() => setCollapsed(!collapsed)}
           className="w-full flex items-center justify-center py-2 text-[#9CA3AF] hover:text-white hover:bg-white/5 rounded-lg transition-colors"

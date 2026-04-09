@@ -1,18 +1,21 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { Eye, EyeOff, LogIn } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
+import { login } from '@/lib/auth/actions'
 
-export default function LoginPage() {
+function LoginForm() {
+  const searchParams = useSearchParams()
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState({ email: '', password: '' })
   const [error, setError] = useState('')
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError('')
     if (!form.email || !form.password) {
@@ -20,11 +23,14 @@ export default function LoginPage() {
       return
     }
     setLoading(true)
-    // TODO: Replace with real auth (Supabase / NextAuth)
-    await new Promise((r) => setTimeout(r, 1000))
-    setLoading(false)
-    // Redirect to dashboard after successful login
-    window.location.href = '/dashboard'
+    const data = new FormData(e.currentTarget)
+    const next = searchParams.get('next')
+    if (next) data.set('next', next)
+    const result = await login(data)
+    if (result?.error) {
+      setError(result.error)
+      setLoading(false)
+    }
   }
 
   return (
@@ -38,6 +44,7 @@ export default function LoginPage() {
         <Input
           label="Email"
           type="email"
+          name="email"
           placeholder="you@example.com"
           autoComplete="email"
           value={form.email}
@@ -49,6 +56,7 @@ export default function LoginPage() {
           <div className="relative">
             <input
               type={showPassword ? 'text' : 'password'}
+              name="password"
               placeholder="••••••••"
               autoComplete="current-password"
               value={form.password}
@@ -105,5 +113,13 @@ export default function LoginPage() {
         ))}
       </div>
     </>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   )
 }
