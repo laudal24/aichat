@@ -5,12 +5,14 @@ import { useState } from 'react'
 import { Eye, EyeOff, UserPlus } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
+import { register } from '@/lib/auth/actions'
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState({ name: '', email: '', password: '' })
   const [errors, setErrors] = useState<Partial<typeof form>>({})
+  const [serverError, setServerError] = useState('')
 
   function validate() {
     const e: Partial<typeof form> = {}
@@ -20,16 +22,18 @@ export default function RegisterPage() {
     return e
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const errs = validate()
     if (Object.keys(errs).length) { setErrors(errs); return }
     setErrors({})
+    setServerError('')
     setLoading(true)
-    // TODO: Replace with real auth (Supabase / NextAuth)
-    await new Promise((r) => setTimeout(r, 1200))
-    setLoading(false)
-    window.location.href = '/onboarding'
+    const result = await register(new FormData(e.currentTarget))
+    if (result?.error) {
+      setServerError(result.error)
+      setLoading(false)
+    }
   }
 
   return (
@@ -43,6 +47,7 @@ export default function RegisterPage() {
         <Input
           label="Full Name"
           type="text"
+          name="name"
           placeholder="Jane Smith"
           autoComplete="name"
           value={form.name}
@@ -53,6 +58,7 @@ export default function RegisterPage() {
         <Input
           label="Email"
           type="email"
+          name="email"
           placeholder="you@example.com"
           autoComplete="email"
           value={form.email}
@@ -65,6 +71,7 @@ export default function RegisterPage() {
           <div className="relative">
             <input
               type={showPassword ? 'text' : 'password'}
+              name="password"
               placeholder="Min. 8 characters"
               autoComplete="new-password"
               value={form.password}
@@ -82,6 +89,8 @@ export default function RegisterPage() {
           </div>
           {errors.password && <p className="text-xs text-red-400">{errors.password}</p>}
         </div>
+
+        {serverError && <p className="text-xs text-red-400">{serverError}</p>}
 
         <p className="text-xs text-[#9CA3AF]">
           By creating an account you agree to our{' '}
