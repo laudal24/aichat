@@ -43,6 +43,14 @@ export default function Sidebar() {
   const initials = displayName.charAt(0).toUpperCase()
   const plan = (user?.user_metadata?.plan as string | undefined) ?? 'Free Plan'
 
+  async function handleLogout() {
+    try {
+      await logout()
+    } catch {
+      // logout redirects on success; any caught error is a non-redirect failure
+    }
+  }
+
   return (
     <aside
       className={`flex flex-col bg-[#0B1020] border-r border-white/5 transition-all duration-300 ${
@@ -95,7 +103,7 @@ export default function Sidebar() {
             </div>
             <ThemeToggle collapsed={false} />
             <button
-              onClick={() => logout()}
+              onClick={handleLogout}
               className="w-full flex items-center gap-2 px-3 py-2 text-xs text-[#9CA3AF] hover:text-white hover:bg-white/5 rounded-lg transition-colors"
               aria-label="Sign out"
             >
@@ -107,7 +115,7 @@ export default function Sidebar() {
         {collapsed && (
           <>
             <button
-              onClick={() => logout()}
+              onClick={handleLogout}
               className="w-full flex items-center justify-center py-2 text-[#9CA3AF] hover:text-white hover:bg-white/5 rounded-lg transition-colors"
               aria-label="Sign out"
             >
