@@ -15,7 +15,9 @@ import {
   ChevronLeft,
   ChevronRight,
   Sparkles,
+  ShieldCheck,
 } from 'lucide-react'
+import { ThemeToggle } from './ThemeToggle'
 
 const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -24,6 +26,7 @@ const navItems = [
   { href: '/chat', icon: MessageSquare, label: 'Chat' },
   { href: '/templates', icon: LayoutTemplate, label: 'Templates' },
   { href: '/users', icon: Users, label: 'Users' },
+  { href: '/admin', icon: ShieldCheck, label: 'Admin' },
   { href: '/billing', icon: CreditCard, label: 'Billing' },
   { href: '/settings', icon: Settings, label: 'Settings' },
 ]
@@ -72,16 +75,20 @@ export default function Sidebar() {
       {/* User + collapse */}
       <div className="border-t border-white/5 p-3 space-y-2">
         {!collapsed && (
-          <div className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-white/5 cursor-pointer">
-            <div className="w-7 h-7 rounded-full bg-[#6366F1] flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
-              U
+          <>
+            <div className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-white/5 cursor-pointer">
+              <div className="w-7 h-7 rounded-full bg-[#6366F1] flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
+                U
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-medium text-white truncate">User</p>
+                <p className="text-xs text-[#9CA3AF] truncate">Free Plan</p>
+              </div>
             </div>
-            <div className="min-w-0">
-              <p className="text-xs font-medium text-white truncate">User</p>
-              <p className="text-xs text-[#9CA3AF] truncate">Free Plan</p>
-            </div>
-          </div>
+            <ThemeToggle collapsed={false} />
+          </>
         )}
+        {collapsed && <ThemeToggle collapsed />}
         <button
           onClick={() => setCollapsed(!collapsed)}
           className="w-full flex items-center justify-center py-2 text-[#9CA3AF] hover:text-white hover:bg-white/5 rounded-lg transition-colors"
