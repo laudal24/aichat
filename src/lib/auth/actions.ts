@@ -72,8 +72,26 @@ export async function resetPassword(formData: FormData) {
   }
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/update-password`,
+    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback?next=/update-password`,
   })
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  return { success: true }
+}
+
+export async function updatePassword(formData: FormData) {
+  const supabase = await createClient()
+
+  const password = (formData.get('password') as string | null) ?? ''
+
+  if (password.length < 8) {
+    return { error: 'Password must be at least 8 characters.' }
+  }
+
+  const { error } = await supabase.auth.updateUser({ password })
 
   if (error) {
     return { error: error.message }
